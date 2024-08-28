@@ -1,29 +1,36 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 export default function Register() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [message,setMessage]=useState('');
+    const router=useRouter();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const res = await fetch('/src/api/register', {
+        const res = await fetch('api/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ name, email, password }),
         });
+        const data=await res.json()
         if (res.ok) {
-            console.log("User registered successfully");
+            setMessage('registration successfull! redirecting to login');
+            setTimeout(()=>{
+                router.push('/login');
+            },2000);
         } else {
-            console.error("Failed to register user");
+            setMessage('registration failed:'+data.message);
         }
     };
 
     return (
+    <div>
         <form onSubmit={handleSubmit}>
             <div>
                 <label>Name</label>
@@ -39,5 +46,7 @@ export default function Register() {
             </div>
             <button type="submit">Register</button>
         </form>
+        {message && <p>{message}</p>}
+    </div>
     );
 }
